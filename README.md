@@ -94,7 +94,7 @@ _________
 
 ### 4. Running the Docker Architecture
 
-We will use docker compose for it. We have three services stated in the ```docker-compose.yml``` file: ```web1```, ```db``` and ```haproxy```. Later on we will create another service to scale up the app.
+We will use docker compose for it. We have three services stated in the ```docker-compose.yml``` file: ```web1```, ```db``` and ```haproxy```. Later on we will create more services to scale up the app.
 
 Use ```docker compose up``` to run the whole project.
 
@@ -105,3 +105,66 @@ Now, go the IP address stated on the ```haproxy``` service in the ```docker-comp
 > User: admin
  
 > Password: admin
+
+As we log in, we can view the statistics of ```web1```:
+
+![image](https://user-images.githubusercontent.com/72606659/204165323-98351643-4e14-440f-ba4a-f7703b0f01a0.png)
+
+### 4.1 Scaling the Docker Architecture
+
+Start by doing ```docker compose down```. After it, scale the application using the following command (we will create 3 more web1-alike containers): 
+
+```docker-compose up –d –scale web1=3```.
+
+After doing so, get back to the HAProxy website and we can view all of the new statistics:
+
+![image](https://user-images.githubusercontent.com/72606659/204165408-3b3d34e1-cf53-4db2-a552-c7f20d0f1a28.png)
+
+<br />
+
+_________
+
+## 5. Performance Testing
+> Apache Benchmark version 2.3 was used
+
+<br />
+
+The following command was used to test the server:
+
+`ab -k -n{numberOfRequests} -c{concurrentRequests} http://127.0.0.1:8000/`
+
+> To learn more about the flags used in this command, [here](https://httpd.apache.org/docs/2.4/programs/ab.html) you can find the official Apache documentation about it.
+
+<br />
+
+I tested both Vagrant and Docker servers with:
+- **100** petitions with **5** concurrent petitions
+- **200** petitions with **20** concurrent petitions
+- **300** petitions with **30** concurrent petitions
+- **500** petitions with **50** concurrent petitions
+- **1000** petitions with **100** concurrent petitions (Only Docker)
+
+<br />
+
+After all the tests, I collected the data and graphied it:
+> Time per request in seconds
+
+- Vagrant performance:
+
+![image](https://user-images.githubusercontent.com/72606659/204165870-722e1824-2541-46ad-ab6e-e95bc940beea.png)
+
+
+- Docker performance: 
+
+![image](https://user-images.githubusercontent.com/72606659/204165816-4c193602-f60a-4fe9-9267-6e81c1c0b45d.png)
+
+
+Docker stands out a lot more. It is way more optimized, lightweight and fast, plus it can take more petitions. Vagrant could not make it past 500, and Docker could have taken even 2000 petitions.
+
+
+<br />
+
+_________
+
+## 6. End
+> Learn more about [Docker](https://www.docker.com/) and [Vagrant](https://www.vagrantup.com/)
