@@ -110,6 +110,10 @@ As we log in, we can view the statistics of ```web1```:
 
 ![image](https://user-images.githubusercontent.com/72606659/204165323-98351643-4e14-440f-ba4a-f7703b0f01a0.png)
 
+<br />
+
+_________
+
 ### 4.1 Scaling the Docker Architecture
 
 Start by doing ```docker compose down```. After it, scale the application using the following command (we will create 3 more web1-alike containers): 
