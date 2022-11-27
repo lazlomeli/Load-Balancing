@@ -68,5 +68,40 @@ We will start by closing ```web1``` and ```db``` virtual machines using ```vagra
 
 After it, do ```vagrant up lb``` to bring up the load balancing VM.
 
-Now, we will configure ```haproxy.cfg``` file. To do so, go to ```/etc/haproxy/``` and do ```sudo nano haproxy.cfg``` to edit the file.
+Now, we will configure ```haproxy.cfg``` file. To do so, go to ```/etc/haproxy/``` and do ```sudo nano haproxy.cfg``` to edit the file. Add the contents of the file ```haproxy_config.txt``` in this repository at the end of the ```haproxy.cfg``` file. 
 
+Reload HAProxy using ```sudo service haproxy reload```.
+
+Now, go to the IP address of the ```lb``` VM and log in with the ```haproxy.cfg``` file credentials.
+
+You should see this:
+
+![image](https://user-images.githubusercontent.com/72606659/204164857-cca62b2f-464a-4685-951d-984ff2959fa7.png)
+
+To view our ```web1``` VM in this table, use ```vagrant up web1``` and reload the page. You should see it running:
+
+![image](https://user-images.githubusercontent.com/72606659/204164915-1ab0d0ce-7125-45d4-ac03-a8146e1018a4.png)
+
+Use ```vagrant up web2``` to view the ```web2``` VM there too:
+
+![image](https://user-images.githubusercontent.com/72606659/204164960-f14eccfb-881a-477a-ae1c-081a02a11be0.png)
+
+As you can see this is a good way of scaling a web application, but not so optimized since we scale it by creating VMs. Let's take a look at Docker doing the same thing.
+
+<br />
+
+_________
+
+### 4. Running the Docker Architecture
+
+We will use docker compose for it. We have three services stated in the ```docker-compose.yml``` file: ```web1```, ```db``` and ```haproxy```. Later on we will create another service to scale up the app.
+
+Use ```docker compose up``` to run the whole project.
+
+As we did in Vagrant, configure the Wordpress welcome page by filling up the asked data and log in into the Wordpress dashboard.
+
+Now, go the IP address stated on the ```haproxy``` service in the ```docker-compose.yml``` file and log in.
+
+> User: admin
+ 
+> Password: admin
