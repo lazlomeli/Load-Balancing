@@ -1,0 +1,73 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
+  
+# Configs for web1
+    config.vm.define :web1 do |web1_config|
+        web1_config.vm.provider :virtualbox do |vb_config|
+            vb_config.name = "web1"
+            vb_config.memory = "1024"
+        end
+        web1_config.vm.hostname = "web1"
+        web1_config.vm.network "private_network", ip: "192.168.100.101"
+        web1_config.vm.synced_folder "wordpress", "/var/www/html"
+        web1_config.vm.provision :shell, inline: <<-SHELL
+        	apt-get update
+        	apt-get install -y apache2 php php-mysql
+	SHELL
+    end
+    
+# Configs for web2
+    config.vm.define :web2 do |web2_config|
+        web2_config.vm.provider :virtualbox do |vb_config|
+            vb_config.name = "web2"
+            vb_config.memory = "1024"
+        end
+        web2_config.vm.hostname = "web2"
+        web2_config.vm.network "private_network", ip: "192.168.100.102"
+        web2_config.vm.synced_folder "wordpress", "/var/www/html"
+        web2_config.vm.provision :shell, inline: <<-SHELL
+        	apt-get update
+        	apt-get install -y apache2 php php-mysql
+	SHELL
+    end
+
+# Configs for db
+    config.vm.define :db do |db_config|
+        db_config.vm.provider :virtualbox do |vb_config|
+            vb_config.name = "db"
+            vb_config.memory = "1024"
+        end
+        db_config.vm.hostname = "db"
+        db_config.vm.network "private_network", ip: "192.168.100.150"
+        db_config.vm.provision "shell", inline: <<-SHELL
+        	apt-get update
+        	apt-get install -y mysql-server-5.7
+            sed -i "s/127.0.0.1/192.168.100.150/g" /etc/mysql/mysql.conf.d/mysqld.cnf
+        	mysql -u root -e "CREATE DATABASE wordpress;"
+        	mysql -u root -e "CREATE USER 'wp_user'@'192.168.100.150' IDENTIFIED BY 'wp_pass';"
+        	mysql -u root -e "GRANT ALL PRIVILEGES ON wordpress.* TO 'wp_user'@'192.168.100.150';"
+        	service mysql reload
+	SHELL
+    end
+
+
+# Configs for lb
+    config.vm.define :lb do |lb_config|
+        lb_config.vm.provider :virtualbox do |vb_config|
+            vb_config.name = "lb"
+            vb_config.memory = "1024"
+        end
+        lb_config.vm.hostname = "lb"
+        lb_config.vm.network "public_network"
+        lb_config.vm.network "private_network", ip: "192.168.100.100"
+        lb_config.vm.provision :shell, inline: <<-SHELL
+        	apt-get update
+        	apt-get install -y haproxy
+	SHELL
+    end
+    
+
+end
