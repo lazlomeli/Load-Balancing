@@ -17,7 +17,7 @@
 
 _________
 
-1. Dependencies 
+### 1. Dependencies 
 
 - Have [Docker and Docker Desktop](https://www.docker.com/) installed.
 
