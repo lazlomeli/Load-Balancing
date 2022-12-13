@@ -17,7 +17,7 @@
 
 _________
 
-1. Dependencies 
+### 1. Dependencies 
 
 - Have [Docker and Docker Desktop](https://www.docker.com/) installed.
 
@@ -68,5 +68,107 @@ We will start by closing ```web1``` and ```db``` virtual machines using ```vagra
 
 After it, do ```vagrant up lb``` to bring up the load balancing VM.
 
-Now, we will configure ```haproxy.cfg``` file. To do so, go to ```/etc/haproxy/``` and do ```sudo nano haproxy.cfg``` to edit the file.
+Now, we will configure ```haproxy.cfg``` file. To do so, go to ```/etc/haproxy/``` and do ```sudo nano haproxy.cfg``` to edit the file. Add the contents of the file ```haproxy_config.txt``` in this repository at the end of the ```haproxy.cfg``` file. 
 
+Reload HAProxy using ```sudo service haproxy reload```.
+
+Now, go to the IP address of the ```lb``` VM and log in with the ```haproxy.cfg``` file credentials.
+
+You should see this:
+
+![image](https://user-images.githubusercontent.com/72606659/204164857-cca62b2f-464a-4685-951d-984ff2959fa7.png)
+
+To view our ```web1``` VM in this table, use ```vagrant up web1``` and reload the page. You should see it running:
+
+![image](https://user-images.githubusercontent.com/72606659/204164915-1ab0d0ce-7125-45d4-ac03-a8146e1018a4.png)
+
+Use ```vagrant up web2``` to view the ```web2``` VM there too:
+
+![image](https://user-images.githubusercontent.com/72606659/204164960-f14eccfb-881a-477a-ae1c-081a02a11be0.png)
+
+As you can see this is a good way of scaling a web application, but not so optimized since we scale it by creating VMs. Let's take a look at Docker doing the same thing.
+
+<br />
+
+_________
+
+### 4. Running the Docker Architecture
+
+We will use docker compose for it. We have three services stated in the ```docker-compose.yml``` file: ```web1```, ```db``` and ```haproxy```. Later on we will create more services to scale up the app.
+
+Use ```docker compose up``` to run the whole project.
+
+As we did in Vagrant, configure the Wordpress welcome page by filling up the asked data and log in into the Wordpress dashboard.
+
+Now, go the IP address stated on the ```haproxy``` service in the ```docker-compose.yml``` file and log in.
+
+> User: admin
+ 
+> Password: admin
+
+As we log in, we can view the statistics of ```web1```:
+
+![image](https://user-images.githubusercontent.com/72606659/204165323-98351643-4e14-440f-ba4a-f7703b0f01a0.png)
+
+<br />
+
+_________
+
+### 4.1 Scaling the Docker Architecture
+
+Start by doing ```docker compose down```. After it, scale the application using the following command (we will create 3 more web1-alike containers): 
+
+```docker-compose up –d –scale web1=3```.
+
+After doing so, get back to the HAProxy website and we can view all of the new statistics:
+
+![image](https://user-images.githubusercontent.com/72606659/204165408-3b3d34e1-cf53-4db2-a552-c7f20d0f1a28.png)
+
+<br />
+
+_________
+
+## 5. Performance Testing
+> Apache Benchmark version 2.3 was used
+
+<br />
+
+The following command was used to test the server:
+
+`ab -k -n{numberOfRequests} -c{concurrentRequests} http://127.0.0.1:8000/`
+
+> To learn more about the flags used in this command, [here](https://httpd.apache.org/docs/2.4/programs/ab.html) you can find the official Apache documentation about it.
+
+<br />
+
+I tested both Vagrant and Docker servers with:
+- **100** petitions with **5** concurrent petitions
+- **200** petitions with **20** concurrent petitions
+- **300** petitions with **30** concurrent petitions
+- **500** petitions with **50** concurrent petitions
+- **1000** petitions with **100** concurrent petitions (Only Docker)
+
+<br />
+
+After all the tests, I collected the data and graphied it:
+> Time per request in seconds
+
+- Vagrant performance:
+
+![image](https://user-images.githubusercontent.com/72606659/204165870-722e1824-2541-46ad-ab6e-e95bc940beea.png)
+
+
+- Docker performance: 
+
+![image](https://user-images.githubusercontent.com/72606659/204165816-4c193602-f60a-4fe9-9267-6e81c1c0b45d.png)
+
+
+Docker stands out a lot more. It is way more optimized, lightweight and fast, plus it can take more petitions. Vagrant could not make it past 500, and Docker could have taken even 2000 petitions.
+
+
+<br />
+
+_________
+
+## 6. End
+> Learn more about [Docker](https://www.docker.com/) and [Vagrant](https://www.vagrantup.com/)
