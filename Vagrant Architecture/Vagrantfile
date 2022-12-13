@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/bionic64"
+  config.vm.box = "generic/ubuntu2010"
   
 # Configs for web1
     config.vm.define :web1 do |web1_config|
@@ -11,6 +11,7 @@ Vagrant.configure("2") do |config|
             vb_config.memory = "1024"
         end
         web1_config.vm.hostname = "web1"
+        web1_config.vm.network "forwarded_port", guest: 80, host: 1234
         web1_config.vm.network "private_network", ip: "192.168.100.101"
         web1_config.vm.synced_folder "wordpress", "/var/www/html"
         web1_config.vm.provision :shell, inline: <<-SHELL
@@ -44,12 +45,13 @@ Vagrant.configure("2") do |config|
         db_config.vm.network "private_network", ip: "192.168.100.150"
         db_config.vm.provision "shell", inline: <<-SHELL
         	apt-get update
-        	apt-get install -y mysql-server-5.7
-            sed -i "s/127.0.0.1/192.168.100.150/g" /etc/mysql/mysql.conf.d/mysqld.cnf
+        	apt-get install -y mysql-server
         	mysql -u root -e "CREATE DATABASE wordpress;"
-        	mysql -u root -e "CREATE USER 'wp_user'@'192.168.100.150' IDENTIFIED BY 'wp_pass';"
-        	mysql -u root -e "GRANT ALL PRIVILEGES ON wordpress.* TO 'wp_user'@'192.168.100.150';"
-        	service mysql reload
+        	mysql -u root -e "CREATE USER 'wp_user'@'192.168.100.101' IDENTIFIED BY 'wp_pass';"
+        	mysql -u root -e "GRANT ALL PRIVILEGES ON wordpress.* TO 'wp_user'@'192.168.100.101';"
+            cd ../../etc/mysql/mysql.conf.d/
+            sed -i 's/127.0.0.1/0.0.0.0/' mysqld.cnf
+        	service mysql restart
 	SHELL
     end
 

@@ -1,10 +1,12 @@
 frontend http_front
-   bind *:80
+   bind *:5000
+   mode http
    stats uri /haproxy?stats
    stats auth username:password
    default_backend http_back
 
 backend http_back
+   mode http
    balance roundrobin
    server web1 192.168.33.10:80 check
    server web2 192.168.33.20:80 check
